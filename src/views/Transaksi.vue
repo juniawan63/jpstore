@@ -34,14 +34,8 @@
         />
         <select v-model="selectedStore" class="border rounded px-3 py-2">
           <option value="">Semua Store</option>
-          <option value="store1">Store 1</option>
-          <option value="store2">Store 2</option>
-        </select>
-        <select v-model="selectedDate" class="border rounded px-3 py-2">
-          <option value="">Semua Tanggal Transaksi</option>
-          <option value="today">Hari Ini</option>
-          <option value="week">7 Hari Terakhir</option>
-          <option value="month">30 Hari Terakhir</option>
+          <option value="Store 1">Store 1</option>
+          <option value="Store 2">Store 2</option>
         </select>
       </div>
 
@@ -51,7 +45,7 @@
           v-for="s in statuses"
           :key="s"
           @click="activeStatus = s"
-          :class="[
+          :class="[ 
             'px-4 py-1 rounded-full border',
             activeStatus === s
               ? 'bg-green-100 text-green-600 border-green-600'
@@ -76,7 +70,7 @@
         </router-link>
       </div>
 
-      <!-- List Transaksi (jika ada) -->
+      <!-- List Transaksi -->
       <div v-else class="space-y-4">
         <div
           v-for="trx in filteredTransactions"
@@ -84,11 +78,12 @@
           class="border rounded-lg p-4 flex justify-between items-center"
         >
           <div>
-            <p class="font-medium">{{ trx.store }}</p>
+            <p class="font-medium">{{ trx.store || 'Online Store' }}</p>
             <p class="text-sm text-gray-500">#{{ trx.id }} - {{ trx.date }}</p>
+            <p class="text-sm text-gray-700">Total: Rp{{ trx.total.toLocaleString("id-ID") }}</p>
           </div>
           <span
-            :class="[
+            :class="[ 
               'px-3 py-1 rounded-full text-sm',
               trx.status === 'Lunas' ? 'bg-green-100 text-green-600' :
               trx.status === 'Diproses' ? 'bg-yellow-100 text-yellow-600' :
@@ -109,29 +104,27 @@
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useOrderStore } from "@/stores/orderStore"; 
 
 const router = useRouter();
 const auth = useAuthStore();
 const currentUser = auth.currentUser;
+const orderStore = useOrderStore(); 
 
 const search = ref("");
 const selectedStore = ref("");
-const selectedDate = ref("");
 const activeStatus = ref("Semua Status");
 
 const statuses = ["Semua Status", "Lunas", "Diproses", "Packing", "Dikirim", "Diterima", "Kadaluarsa"];
 
-// dummy data transaksi
-const transactions = ref([
-  // contoh kosong, bisa ditambah seperti:
-  // { id: "TRX001", store: "Store 1", date: "2025-09-20", status: "Lunas" }
-]);
+// ✅ Gunakan data dari orderStore
+const transactions = computed(() => orderStore.orders);
 
-// filter transaksi
+// Filter
 const filteredTransactions = computed(() => {
   return transactions.value.filter((trx) => {
     const matchSearch = search.value
-      ? trx.store.toLowerCase().includes(search.value.toLowerCase())
+      ? trx.items.some(item => item.title.toLowerCase().includes(search.value.toLowerCase()))
       : true;
     const matchStore = selectedStore.value ? trx.store === selectedStore.value : true;
     const matchStatus = activeStatus.value !== "Semua Status" ? trx.status === activeStatus.value : true;
@@ -142,7 +135,6 @@ const filteredTransactions = computed(() => {
 const resetFilter = () => {
   search.value = "";
   selectedStore.value = "";
-  selectedDate.value = "";
   activeStatus.value = "Semua Status";
 };
 
