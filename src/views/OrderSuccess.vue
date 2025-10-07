@@ -1,4 +1,3 @@
-
 <template>
   <section class="max-w-2xl mx-auto mt-24 px-6 text-center">
     <div class="bg-white shadow rounded-2xl p-10">
@@ -11,8 +10,8 @@
         dikirim ke alamat yang kamu pilih.
       </p>
 
-      <!-- ✅ Tambahkan ringkasan pesanan -->
-      <div v-if="order.items && order.items.length" class="text-left mb-8">
+      <!-- ✅ Ringkasan Pesanan -->
+      <div v-if="order && order.items && order.items.length" class="text-left mb-8">
         <h2 class="text-lg font-semibold mb-2">Detail Pesanan:</h2>
         <ul class="list-disc pl-5 space-y-1">
           <li v-for="(item, idx) in order.items" :key="idx">
@@ -32,7 +31,7 @@
           Belanja Lagi
         </router-link>
         <router-link
-          to="/orders"
+          to="/transaksi"
           class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold"
         >
           Lihat Pesanan
@@ -43,26 +42,25 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useOrderStore } from "@/stores/orderStore";
 
 const route = useRoute();
 const orderStore = useOrderStore();
 
-let order = {};
-
-// ✅ Ambil order terakhir dari store
-if (orderStore.orders.length > 0) {
-  order = orderStore.orders[orderStore.orders.length - 1];
-} else {
-  // fallback kalau user buka langsung pakai query string
+// ✅ Ambil order terakhir, reactive
+const order = computed(() => {
+  if (orderStore.orders.length > 0) {
+    return orderStore.orders[orderStore.orders.length - 1];
+  }
   try {
     if (route.query.order) {
-      order = JSON.parse(decodeURIComponent(route.query.order));
+      return JSON.parse(decodeURIComponent(route.query.order));
     }
   } catch (e) {
     console.error("Gagal parse order:", e);
-    order = {};
   }
-}
+  return {};
+});
 </script>

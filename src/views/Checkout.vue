@@ -189,9 +189,11 @@ const submitCheckout = () => {
     total: totalPrice.value,
     payment: paymentMethod.value,
     address: address.value,
+    store: "Store 1", // ✅ bisa dinamis kalau ada banyak toko
+    status: "Menunggu Pembayaran", // ✅ status awal
   };
 
-  // ✅ Simpan order ke store
+  // Simpan order ke store
   orderStore.addOrder(orderData);
 
   // Hapus item dari cart
@@ -199,7 +201,8 @@ const submitCheckout = () => {
     cart.removeItem(item.id);
   });
 
-  // ✅ Redirect tanpa query (cukup ambil dari store di order-success)
+  // Redirect ke halaman transaksi
   router.push("/order-success");
 };
+
 </script>

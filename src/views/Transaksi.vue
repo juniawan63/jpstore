@@ -82,20 +82,35 @@
             <p class="text-sm text-gray-500">#{{ trx.id }} - {{ trx.date }}</p>
             <p class="text-sm text-gray-700">Total: Rp{{ trx.total.toLocaleString("id-ID") }}</p>
           </div>
-          <span
-            :class="[ 
-              'px-3 py-1 rounded-full text-sm',
-              trx.status === 'Lunas' ? 'bg-green-100 text-green-600' :
-              trx.status === 'Diproses' ? 'bg-yellow-100 text-yellow-600' :
-              trx.status === 'Dikirim' ? 'bg-blue-100 text-blue-600' :
-              trx.status === 'Diterima' ? 'bg-gray-100 text-gray-600' :
-              'bg-red-100 text-red-600'
-            ]"
-          >
-            {{ trx.status }}
-          </span>
+
+          <div class="flex items-center gap-3">
+            <span
+              :class="[ 
+                'px-3 py-1 rounded-full text-sm',
+                trx.status === 'Menunggu Pembayaran' ? 'bg-orange-100 text-orange-600' :
+                trx.status === 'Lunas' ? 'bg-green-100 text-green-600' :
+                trx.status === 'Diproses' ? 'bg-yellow-100 text-yellow-600' :
+                trx.status === 'Packing' ? 'bg-indigo-100 text-indigo-600' :
+                trx.status === 'Dikirim' ? 'bg-blue-100 text-blue-600' :
+                trx.status === 'Diterima' ? 'bg-gray-100 text-gray-600' :
+                'bg-red-100 text-red-600'
+              ]"
+            >
+              {{ trx.status }}
+            </span>
+
+            <!-- Tombol update status -->
+            <button
+              v-if="trx.status !== 'Kadaluarsa' && trx.status !== 'Diterima'"
+              @click="orderStore.updateStatus(trx.id)"
+              class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+            >
+              Update Status
+            </button>
+          </div>
         </div>
       </div>
+
     </main>
   </section>
 </template>
